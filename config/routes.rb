@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
-  resources :messages
-  resources :chats
-  resources :applications
+  # resources :messages
+  # resources :chats
+  # resources :applications
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")
@@ -9,7 +9,10 @@ Rails.application.routes.draw do
 
   namespace :api do 
     namespace :v1 do 
-      resources :applications, except: [:destroy]
+      resources :applications, except: [:destroy] do
+        resources :chats, except: [:destroy]
+      end
     end
   end
+  
 end
