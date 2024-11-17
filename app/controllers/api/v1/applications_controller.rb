@@ -8,7 +8,7 @@ class Api::V1::ApplicationsController < ApplicationController
       render json: @applications
     end
 
-    # GET /api/v1/applications/:id
+    # GET /api/v1/applications/:token
     def show
       render json: @application
     end
@@ -24,14 +24,14 @@ class Api::V1::ApplicationsController < ApplicationController
       end
     end
 
-    # PATCH/PUT /api/v1/applications/:id
+    # PATCH/PUT /api/v1/applications/:token
     def update
         token = request.headers['Authorization']
       
         #locking while update to handle race condition
         Application.transaction do
-          @application = Application.lock.find_by(id: params[:id], token: token)
-          if @application.nil?
+            @application = Application.lock.find_by(token: params[:token])
+          if @application.nil? || @application.token != token
             render json: { error: 'Unauthorized' }, status: :unauthorized
             return
           end
@@ -47,13 +47,17 @@ class Api::V1::ApplicationsController < ApplicationController
     private
 
     def set_application
-      @application = Application.find(params[:id])
+        @application = Application.find_by!(token: params[:token])
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: 'Application not found' }, status: :not_found
     end
 
     def authenticate_application_show
       token = request.headers['Authorization']
-      @application = Application.find_by(id: params[:id], token: token)
-      render json: { error: 'Unauthorized' }, status: :unauthorized unless @application
+      @application = Application.find_by(token: params[:token])
+      if @application.nil? && @application.token != token
+        render json: { error: 'Unauthorized' }, status: :unauthorized unless @application
+      end
     end
 
 

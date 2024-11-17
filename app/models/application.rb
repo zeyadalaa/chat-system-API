@@ -1,6 +1,6 @@
 class Application < ApplicationRecord
-    has_many :chats
-    has_many :messages
+  has_many :chats, foreign_key: :application_token, primary_key: :token
+  has_many :messages, foreign_key: :application_token, primary_key: :token
 
     before_validation :generate_token, on: :create
 

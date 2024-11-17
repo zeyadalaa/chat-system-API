@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_11_16_200924) do
+ActiveRecord::Schema[7.0].define(version: 2024_11_17_182710) do
   create_table "applications", id: :integer, charset: "utf8mb3", force: :cascade do |t|
     t.string "deviceName", null: false
     t.string "token", null: false
@@ -22,30 +22,29 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_16_200924) do
   end
 
   create_table "chats", id: :integer, charset: "utf8mb3", force: :cascade do |t|
-    t.integer "application_id", null: false
     t.integer "number", null: false
     t.string "application_token", null: false
+    t.string "title"
     t.integer "messages_count", default: 0, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string "title"
-    t.index ["application_id", "number"], name: "index_chats_on_application_id_and_number", unique: true
-    t.index ["application_id"], name: "_idx"
+    t.index ["application_token", "number"], name: "index_chats_on_application_token_and_number", unique: true
+    t.index ["application_token"], name: "index_chats_on_application_token"
+    t.index ["number"], name: "index_chats_on_number"
   end
 
   create_table "messages", id: :integer, charset: "utf8mb3", force: :cascade do |t|
-    t.integer "chat_id", null: false
-    t.integer "application_id", null: false
     t.integer "number", null: false
+    t.integer "chat_number", null: false
     t.string "application_token", null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.index ["application_id"], name: "application_id_idx"
-    t.index ["chat_id", "number"], name: "chat_id", unique: true
-    t.index ["chat_id"], name: "chat_id_idx"
+    t.string "content", default: "", null: false
+    t.index ["application_token", "number", "chat_number"], name: "index_messages_on_application_token_number_and_chat_number", unique: true
+    t.index ["chat_number"], name: "fk_messages_to_chats_by_number"
   end
 
-  add_foreign_key "chats", "applications", name: "fk_application"
-  add_foreign_key "messages", "applications", name: "fk_application_id"
-  add_foreign_key "messages", "chats", name: "fk_chat_id"
+  add_foreign_key "chats", "applications", column: "application_token", primary_key: "token", name: "fk_chats_to_applications"
+  add_foreign_key "messages", "applications", column: "application_token", primary_key: "token", name: "fk_messages_to_applications"
+  add_foreign_key "messages", "chats", column: "chat_number", primary_key: "number", name: "fk_messages_to_chats_by_number"
 end
