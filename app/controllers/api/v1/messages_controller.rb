@@ -74,6 +74,36 @@ class Api::V1::MessagesController < ApplicationController
   end
 
 
+  # GET /api/v1/applications/:application_token/chats/:chat_number/messages/search
+  def search
+    query = params[:query]
+
+    if query.blank?
+      render json: { error: 'Query parameter cannot be blank' }, status: :bad_request
+      return
+    end
+
+    # Perform search using Elasticsearch
+    search_results = Message.__elasticsearch__.search({
+      query: {
+        bool: {
+          must: [
+            { match: { application_token: params[:application_token] } },
+            { match: { chat_number: params[:chat_number] } },
+            { match: { content: query } } # Search on content with partial matching
+          ]
+        }
+      },
+      highlight: {
+        fields: {
+          content: {} # Highlight the content field
+        }
+      }
+    })
+
+    render json: format_search_results(search_results)
+  end
+
   private
 
   def set_message
@@ -89,4 +119,24 @@ class Api::V1::MessagesController < ApplicationController
   def message_params
     params.require(:message).permit(:content)
   end
+
+  
+  def format_search_results(search_results)
+    search_results.map do |result|
+      {
+        id: result.id,
+        content: result._source.content,
+        message_number: result._source.message_number,
+        chat_number_fk: result._source.chat_number,
+        application_token_fk: result._source.application_token,
+        created_at: result._source.created_at,
+        updated_at: result._source.updated_at,
+        highlights: result.highlight&.content # Safely handle cases where highlights might be nil
+      }
+    end
+  end
 end
+
+
+
+

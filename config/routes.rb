@@ -11,7 +11,11 @@ Rails.application.routes.draw do
     namespace :v1 do 
       resources :applications, param: :token ,except: [:destroy] do
         resources :chats, param: :number ,except: [:destroy] do
-          resources :messages, param: :number ,except: [:destroy]
+          resources :messages, param: :number ,except: [:destroy] do
+            collection do
+              get :search, to: 'messages#search' # Add the search route
+            end
+          end
         end
       end
     end
