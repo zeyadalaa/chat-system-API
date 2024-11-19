@@ -1,7 +1,6 @@
 class Api::V1::MessagesController < ApplicationController
   before_action :set_message, only: [:show, :update]
 
-
   # GET /api/v1/applications/:application_token/chats/:chat_number/messages
   def index
     @messages = Message.where(
@@ -9,6 +8,16 @@ class Api::V1::MessagesController < ApplicationController
       chat_number: params[:chat_number]
       )
     
+    #fetching cache count
+    cache_key = "#{params[:application_token]}:chat_number:#{params[:chat_number]}:message_count"
+    message_count = $redis.get(cache_key).to_i
+
+    if message_count.zero?
+      # If not cached, count from the database and cache it
+      message_count = @messages.maximum(:number).to_i
+      $redis.set(cache_key, message_count,ex: 43200) # 12 hours
+    end
+
     render json: @messages.as_json(except: [:id])
   end
 
@@ -20,30 +29,30 @@ class Api::V1::MessagesController < ApplicationController
   # POST /api/v1/applications/:application_token/chats/:chat_number/messages
   def create
     @message = Message.new(message_params)
-
+    @message.application_token = params[:application_token]
+    @message.chat_number = params[:chat_number]
 
     @chat = Chat.find_by(application_token: params[:application_token], number: params[:chat_number])
     if @chat.nil?
       render json: { error: 'Unauthorized' }, status: :unauthorized 
       return 
     end
-    @message.application_token = params[:application_token]
-    @message.chat_number = params[:chat_number]
 
-    # Find the latest chat number for the given application
-    latest_message = Message.where(application_token: params[:application_token], chat_number: params[:chat_number])
-    .order(number: :desc)
-    .first
+    cache_key = "#{params[:application_token]}:chat_number:#{params[:chat_number]}:message_count"
+    message_count = $redis.get(cache_key).to_i
 
-    # Set the number for the new message (if there's no message, start with 1)
-    new_message_number = latest_message ? latest_message.number + 1 : 1
+    # Find the latest chat number if Redis key is empty
+    if message_count.zero?
+      message_count = set_message_count
+      $redis.set(cache_key, message_count,ex: 43200) # 12 hours
+    end
 
-    @message.number = new_message_number
-
+    @message.number = $redis.incr(cache_key).to_i
 
     if @message.save
       render json: @message.number, status: :created
     else
+      $redis.decr(cache_key)
       render json: @message.errors, status: :unprocessable_entity
     end
   end
@@ -90,13 +99,13 @@ class Api::V1::MessagesController < ApplicationController
           must: [
             { match: { application_token: params[:application_token] } },
             { match: { chat_number: params[:chat_number] } },
-            { match: { content: query } } # Search on content with partial matching
+            { match: { content: query } } 
           ]
         }
       },
       highlight: {
         fields: {
-          content: {} # Highlight the content field
+          content: {} 
         }
       }
     })
@@ -115,11 +124,15 @@ class Api::V1::MessagesController < ApplicationController
 
     render json: { error: 'Unauthorized' }, status: :not_found unless @message
   end
+  
+  def set_message_count
+    return Message.where(application_token: params[:application_token],chat_number: params[:chat_number]).maximum("number").to_i
+  end
+  
 
   def message_params
-    params.require(:message).permit(:content)
+    params.require(:message).permit(:content, :application_token, :chat_number, :number)
   end
-
   
   def format_search_results(search_results)
     search_results.map do |result|
@@ -131,7 +144,7 @@ class Api::V1::MessagesController < ApplicationController
         application_token_fk: result._source.application_token,
         created_at: result._source.created_at,
         updated_at: result._source.updated_at,
-        highlights: result.highlight&.content # Safely handle cases where highlights might be nil
+        highlights: result.highlight&.content 
       }
     end
   end
