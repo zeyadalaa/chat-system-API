@@ -1,6 +1,6 @@
 :scheduler:
   :schedule:
     update_database_counters_job:
-      cron: "0 * * * * *"  # Every 1 hour
+      cron: "0,30  * * * *"  # Every 1 hour
       class: "UpdateDatabaseCountersJob"
       queue: default
