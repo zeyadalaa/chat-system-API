@@ -15,6 +15,12 @@ gem "puma", "~> 5.0"
 gem 'elasticsearch-model'
 gem 'elasticsearch-rails'
 
+gem 'redis'
+
+gem 'sidekiq'
+gem 'sidekiq-scheduler'
+
+
 
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"

@@ -4,6 +4,16 @@ class Api::V1::ChatsController < ApplicationController
   # GET /api/v1/applications/:application_token/chats
   def index
     @chats = Chat.where(application_token: params[:application_token])
+    #fetching cache count
+    cache_key = "#{params[:application_token]}:chat_count"
+    chat_count = $redis.get(cache_key).to_i
+
+    if chat_count.zero?
+      # If not cached, count from the database and cache it
+      chat_count =  @chats.maximum(:number).to_i
+      $redis.set(cache_key, chat_count,ex: 43200) # 12 hours
+    end
+  
     render json: @chats.as_json(except: [:id])
   end
 
@@ -16,18 +26,24 @@ class Api::V1::ChatsController < ApplicationController
   def create
     @chat = Chat.new(chat_params)
     @chat.application_token = params[:application_token]
+    
 
-    # Find the latest chat number for the given application
-    latest_chat = Chat.where(application_token: params[:application_token]).order(number: :desc).first
+    cache_key = "#{@chat.application_token}:chat_count"
+    chat_count = $redis.get(cache_key).to_i
+    
+  # Find the latest chat number if Redis key is empty
+    if chat_count.zero?
+      chat_count = set_chat_counter
+      $redis.set(cache_key, chat_count.to_i,ex: 43200) # 12 hours
+    end
 
-    # Set the number for the new chat (if there's no chat, start with 1)
-    new_chat_number = latest_chat ? latest_chat.number + 1 : 1
-
-    @chat.number = new_chat_number
+    @chat.number = $redis.incr(cache_key).to_i
 
     if @chat.save
+
       render json: @chat.number, status: :created
     else
+      $redis.decr(cache_key)
       render json: @chat.errors, status: :unprocessable_entity
     end
   end
@@ -58,9 +74,13 @@ class Api::V1::ChatsController < ApplicationController
     @chat = Chat.find_by(application_token: params[:application_token], number: params[:number])
     render json: { error: 'Unauthorized' }, status: :unauthorized unless @chat
   end
+  
+  def set_chat_counter
+    return Chat.where(application_token: params[:application_token]).maximum("number")
+  end
 
-  # Permit chat parameters
   def chat_params
     params.require(:chat).permit(:title)
   end
+
 end
