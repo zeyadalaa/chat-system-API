@@ -50,7 +50,8 @@ class Api::V1::MessagesController < ApplicationController
     @message.number = $redis.incr(cache_key).to_i
 
     if @message.save
-      render json: @message.number, status: :created
+      render json: @message.as_json(only: [:number]), status: :created
+
     else
       $redis.decr(cache_key)
       render json: @message.errors, status: :unprocessable_entity

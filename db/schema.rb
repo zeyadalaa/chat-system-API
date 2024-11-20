@@ -10,11 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_11_20_022550) do
+ActiveRecord::Schema[7.0].define(version: 2024_11_20_051316) do
   create_table "applications", id: :integer, charset: "utf8mb3", force: :cascade do |t|
     t.string "deviceName", null: false
     t.string "token", null: false
-    t.string "password", null: false
     t.integer "chats_count", default: 0
     t.datetime "created_at"
     t.datetime "updated_at"

@@ -54,3 +54,12 @@ group :development do
   # gem "spring"
 end
 
+group :test do
+  gem 'rspec-rails'
+  gem 'factory_bot_rails'
+  gem 'faker'
+  # gem 'database_cleaner-active_record'
+  gem "debug", platforms: %i[ mri mingw x64_mingw ]
+end
+
+

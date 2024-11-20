@@ -31,7 +31,7 @@ class Api::V1::ApplicationsController < ApplicationController
         @application = Application.lock.find_by(token: params[:token])
 
         if @application.nil? 
-          render json: { error: 'Unauthorized' }, status: :unauthorized
+          render json: { error: 'Not Found' }, status: :not_found
           return
         end
 
@@ -61,7 +61,7 @@ class Api::V1::ApplicationsController < ApplicationController
 
 
     def application_params
-      params.require(:application).permit(:deviceName, :password)
+      params.require(:application).permit(:deviceName)
     end
     
 end
