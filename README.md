@@ -101,6 +101,10 @@ Used MySQL for relational database, and used Redis for cacheing
 
 Done, I used Docker to containerize the application.
 
+> Use Rspec
+
+I used RSpec to implement automated tests for my code, ensuring its correctness and reliability by verifying the functionality of key components.
+
 ##Requirements
 
 install [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/install/).
@@ -123,3 +127,47 @@ docker-compose down
 ```
 
 Note: you need to enter things in order ```Applications > Chats > messages```
+
+## Rspec 
+
+After building and starting docker you need to enter Bash of web continer
+```
+docker exec -it chat-system-web-1 bash
+```
+Then type
+```
+bundle exec rspec
+```
+
+## Where to find
+
+* Database schema
+> db/schema.rb
+
+* Models
+> app/models
+
+* Controllers 
+> app/controllers/api/v1
+
+* Sidekiq (Job - Worker)
+> app/sidekiq/update_database_counters_job.rb
+
+* Routes
+> config/routes.rb
+
+* Docker
+> Dockerfile
+> docker-compose.yml
+
+* Routes
+> config/routes.rb
+
+* spec
+> spec/*
+
+* Routes
+> config/routes.rb
+
+* Routes
+> config/routes.rb
