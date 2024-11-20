@@ -7,7 +7,7 @@ Used Feature Branch Workflow which helped me manage code changes by isolating ne
 
 ### Designs
 #### System Design Diagram
-![Alt text](<Chat-system.drawio (3).png>)
+![Alt text](<Chat-system.drawio (4).png>)
 
 #### Database Design
 ![Alt text](image-1.png)
@@ -89,4 +89,33 @@ Solved this by using Redis caching to cache latest count, then after 30 minutes 
 
 I handled race condition by doing locking while updateing in database, same as Redis in caching. I used ```INCR and DECR``` which it handle race condition.
 
+> You should provide endpoints for creating, updating and reading applications, chats and messages.
 
+Done
+
+> Use MySQL as you main datastore. you can check out Redis 
+
+Used MySQL for relational database, and used Redis for cacheing
+
+> Use Docker
+
+Done, I used Docker to containerize the application.
+
+##Requirements
+
+install [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/install/).
+
+## Getting started
+
+### For Docker
+To build and start 
+```
+docker-compose up --build
+```
+
+To stop using the app
+```
+docker-compose down
+```
+
+Note: you need to enter things in order ```Applications > Chats > messages```
