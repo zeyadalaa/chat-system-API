@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_11_17_182710) do
+ActiveRecord::Schema[7.0].define(version: 2024_11_20_022550) do
   create_table "applications", id: :integer, charset: "utf8mb3", force: :cascade do |t|
     t.string "deviceName", null: false
     t.string "token", null: false
@@ -24,7 +24,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_17_182710) do
   create_table "chats", id: :integer, charset: "utf8mb3", force: :cascade do |t|
     t.integer "number", null: false
     t.string "application_token", null: false
-    t.string "title"
+    t.string "title", null: false
     t.integer "messages_count", default: 0, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -37,9 +37,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_17_182710) do
     t.integer "number", null: false
     t.integer "chat_number", null: false
     t.string "application_token", null: false
+    t.string "content", default: "", null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string "content", default: "", null: false
     t.index ["application_token", "number", "chat_number"], name: "index_messages_on_application_token_number_and_chat_number", unique: true
     t.index ["chat_number"], name: "fk_messages_to_chats_by_number"
   end

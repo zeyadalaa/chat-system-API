@@ -1,4 +1,3 @@
 require 'redis'
 
-$redis = Redis.new(url: 'redis://localhost:6379/0')
-
+$redis = Redis.new(url: 'redis://redis:6379/0')

@@ -5,12 +5,12 @@ class Api::V1::ApplicationsController < ApplicationController
     # GET /api/v1/applications
     def index
       @applications = Application.all
-      render json: @applications
+      render json: @applications.as_json(except: [:id])
     end
 
     # GET /api/v1/applications/:token
     def show
-      render json: @application
+      render json: @application.as_json(except: [:id])
     end
 
     # POST /api/v1/applications
@@ -18,7 +18,7 @@ class Api::V1::ApplicationsController < ApplicationController
       @application = Application.new(application_params)
       
       if @application.save
-        render json: @application, status: :created
+        render json: @application.as_json(except: [:id]), status: :created
       else
         render json: @application.errors, status: :unprocessable_entity
       end
@@ -26,23 +26,22 @@ class Api::V1::ApplicationsController < ApplicationController
 
     # PATCH/PUT /api/v1/applications/:token
     def update
-        token = request.headers['Authorization']
-      
-        #locking while update to handle race condition
-        Application.transaction do
-            @application = Application.lock.find_by(token: params[:token])
-          if @application.nil? || @application.token != token
-            render json: { error: 'Unauthorized' }, status: :unauthorized
-            return
-          end
-      
-          if @application.update(application_params)
-            render json: @application
-          else
-            render json: @application.errors, status: :unprocessable_entity
-          end
+      # Locking while updating to handle race condition
+      Application.transaction do
+        @application = Application.lock.find_by(token: params[:token])
+
+        if @application.nil? 
+          render json: { error: 'Unauthorized' }, status: :unauthorized
+          return
+        end
+
+        if @application.update(application_params)
+          render json: @application.as_json(except: [:id])
+        else
+          render json: @application.errors, status: :unprocessable_entity
         end
       end
+    end
 
     private
 
