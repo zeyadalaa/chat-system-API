@@ -44,11 +44,11 @@ class Api::V1::ChatsController < ApplicationController
     Rails.logger.info "chat.number after : #{@chat.number}"
 
     if @chat.save
-
-      render json: @chat.number, status: :created
+      render json: @chat.as_json(only: [:number]), status: :created
     else
       $redis.decr(cache_key)
-      render json: @chat.errors, status: :unprocessable_entity
+      render json: { error: @chat.errors.full_messages }, status: :unprocessable_entity
+
     end
   end
 
@@ -64,9 +64,9 @@ class Api::V1::ChatsController < ApplicationController
       end
 
       if @chat.update(chat_params)
-        render json: @chat.as_json(except: [:id])
+        render json: @chat.as_json(except: [:id]), status: :ok
       else
-        render json: @chat.errors, status: :unprocessable_entity
+        render json: { error: @chat.errors.full_messages }, status: :unprocessable_entity
       end
     end
   end

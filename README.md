@@ -7,7 +7,7 @@ Used Feature Branch Workflow which helped me manage code changes by isolating ne
 
 ### Designs
 #### System Design Diagram
-![Alt text](<Chat-system.drawio (4).png>)
+![Alt text](<Chat-system.drawio.png>)
 
 #### Database Design
 ![Alt text](image-1.png)

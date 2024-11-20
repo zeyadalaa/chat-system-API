@@ -76,6 +76,7 @@ GEM
     debug (1.9.2)
       irb (~> 1.10)
       reline (>= 0.3.8)
+    diff-lcs (1.5.1)
     elastic-transport (8.3.5)
       faraday (< 3)
       multi_json
@@ -92,6 +93,13 @@ GEM
     erubi (1.13.0)
     et-orbi (1.2.11)
       tzinfo
+    factory_bot (6.5.0)
+      activesupport (>= 5.0.0)
+    factory_bot_rails (6.4.4)
+      factory_bot (~> 6.5)
+      railties (>= 5.0.0)
+    faker (3.5.1)
+      i18n (>= 1.8.11, < 2)
     faraday (2.12.1)
       faraday-net_http (>= 2.0, < 3.5)
       json
@@ -197,6 +205,23 @@ GEM
       connection_pool
     reline (0.5.11)
       io-console (~> 0.5)
+    rspec-core (3.13.2)
+      rspec-support (~> 3.13.0)
+    rspec-expectations (3.13.3)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-mocks (3.13.2)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-rails (7.1.0)
+      actionpack (>= 7.0)
+      activesupport (>= 7.0)
+      railties (>= 7.0)
+      rspec-core (~> 3.13)
+      rspec-expectations (~> 3.13)
+      rspec-mocks (~> 3.13)
+      rspec-support (~> 3.13)
+    rspec-support (3.13.1)
     rufus-scheduler (3.9.2)
       fugit (~> 1.1, >= 1.11.1)
     sidekiq (7.3.5)
@@ -233,10 +258,13 @@ DEPENDENCIES
   debug
   elasticsearch-model
   elasticsearch-rails
+  factory_bot_rails
+  faker
   mysql2 (~> 0.5)
   puma (~> 5.0)
   rails (~> 7.0.8, >= 7.0.8.6)
   redis
+  rspec-rails
   sidekiq
   sidekiq-scheduler
   tzinfo-data

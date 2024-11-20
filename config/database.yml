@@ -31,6 +31,12 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
+  adapter: mysql2
+  encoding: utf8mb4
+  database: chat-system 
+  username: newuser
+  password: password123
+  host: db
   # database: chat_system_test
 
 # As with config/credentials.yml, you never want to store sensitive information,

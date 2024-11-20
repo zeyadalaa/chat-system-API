@@ -10,4 +10,4 @@ class Chat < ApplicationRecord
     validates :title, length: { maximum: 50 }, allow_nil: false
   
 
-  end
+end

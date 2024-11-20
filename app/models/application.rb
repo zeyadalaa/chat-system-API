@@ -6,7 +6,6 @@ class Application < ApplicationRecord
 
     validates :token, presence: true, uniqueness: true, allow_nil: false
     validates :deviceName, presence: true, length: { minimum: 3, maximum: 50 }
-    validates :password, presence: true, length: { minimum: 6 }
     
   
     private
