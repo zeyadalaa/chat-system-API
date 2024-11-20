@@ -30,6 +30,8 @@ class Api::V1::ChatsController < ApplicationController
 
     cache_key = "#{@chat.application_token}:chat_count"
     chat_count = $redis.get(cache_key).to_i
+    Rails.logger.info "cacheing of cache_key #{cache_key}  =   #{chat_count}"
+
     
   # Find the latest chat number if Redis key is empty
     if chat_count.zero?
@@ -38,6 +40,8 @@ class Api::V1::ChatsController < ApplicationController
     end
 
     @chat.number = $redis.incr(cache_key).to_i
+
+    Rails.logger.info "chat.number after : #{@chat.number}"
 
     if @chat.save
 

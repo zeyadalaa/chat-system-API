@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: chat-system
+      MYSQL_USER: newuser
+      MYSQL_PASSWORD: password123
+    ports:
+      - 3306:3306
+    volumes:
+      - dbdata:/var/lib/mysql  
+    networks:
+      - app_network
+
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+    networks:
+      - app_network
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.16.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false      
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "9200:9200"
+    networks:
+      - app_network
+
+
+
+  sidekiq:
+    build: .
+    command: bundle exec sidekiq
+    volumes:
+      - ".:/app"
+    depends_on:
+      - db
+      - redis
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 3306
+      DATABASE_NAME: chat-system
+      DATABASE_USER: newuser
+      DATABASE_PASSWORD: password123
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DATABASE: 0
+    networks:
+      - app_network
+
+  web:
+    build: .
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+      - redis
+      - elasticsearch
+      - sidekiq
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 3306
+      DATABASE_NAME: chat-system
+      DATABASE_USER: newuser
+      DATABASE_PASSWORD: password123
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DATABASE: 0
+      ELASTICSEARCH_HOST: http://elasticsearch:9200
+    volumes:
+      - ".:/app"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  dbdata: {}

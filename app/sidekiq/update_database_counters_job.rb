@@ -19,6 +19,7 @@ class UpdateDatabaseCountersJob < ApplicationJob
 
       chat_count = $redis.get(key).to_i
 
+      Rails.logger.info "Test job performed with arguments: #{chat_count}"
       Application.where(token: application_token).update_all(chats_count: chat_count)
     end
   end
@@ -32,6 +33,7 @@ class UpdateDatabaseCountersJob < ApplicationJob
       chat_number = parts[2]
 
       message_count = $redis.get(key).to_i
+      Rails.logger.info "Test job performed with arguments: #{message_count}"
 
       Chat.where(application_token: application_token, number: chat_number).update_all(messages_count: message_count)
     end
