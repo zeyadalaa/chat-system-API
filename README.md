@@ -112,6 +112,10 @@ To build and start
 ```
 docker-compose up --build
 ```
+Migrate database (Note: you may need to do this step)
+```
+docker-compose run web rake db:migrate
+```
 
 To stop using the app
 ```
