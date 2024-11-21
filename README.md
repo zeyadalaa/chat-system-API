@@ -38,6 +38,9 @@ Relations:
     - Forgein key for Chats Table is ```chat_number```
     - I made the combination of ```application_token```, ```number``` and ```chat_number``` columns unique to ensure that chat numbering within each application starts from 1, with no duplicate numbers in the same application.
 
+Note: I designed a database where data is injected in a sorted way, which leads to faster query performance, efficient range searches, and reduced sorting overhead during retrieval. This approach also optimizes indexing, simplifies pagination, and improves storage efficiency through better compression.
+
+
 #### ElasticSearch
 ![Alt text](<elasticsearch logo.png>)
 
@@ -126,7 +129,7 @@ To stop using the app
 docker-compose down
 ```
 
-Note: you need to enter things in order ```Applications > Chats > messages```
+Note: you need to enter data in this order ```Applications > Chats > messages```
 
 ## Rspec 
 
