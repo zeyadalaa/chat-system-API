@@ -65,49 +65,6 @@ By doing this, I can continuously track the number column for newly created chat
 ### My Routes
 ![Alt text](image.png)
 
-
-## Requirments and Solutions
-
-> Each application will generate token by the system
-
-Solved this by generating random UUID
-
-> Chats have a column number that start counts on every new Application, same thing as Messages but with creating new Chat
-
-Solved this by implementing cache with Redis to avaoid hitting too much on Database, and i used Redis INCR to handle race condition, and this will improve comlexity and Pprformance. These keys expire every 12 hours.
-
-> The client should never see the ID of any of the entities.
-
-Return every response without ID, even routes doesnt include any IDs
-
-> Create endpoint for searching through messages
-
-Used ```edge_ngram_tokenizer``` tokenizer in ElasticSearch, This tokenizer breaks down the message content into substrings, allowing for faster and more accurate partial matching when searching for keywords.
-
-> Applications and Chats table have ```chats_count``` and ```messages_count``` These columns don’t have to be live. However, they shouldn’t be lagging more than 1 hour.
-
-Solved this by using Redis caching to cache latest count, then after 30 minutes schedule, a background job using Sidekiq, will be responsible to update this column in database.
-
-> Endpoint might be running on multiple servers in parallel, multiple requests may be processed concurrently.
-
-I handled race condition by doing locking while updateing in database, same as Redis in caching. I used ```INCR and DECR``` which it handle race condition.
-
-> You should provide endpoints for creating, updating and reading applications, chats and messages.
-
-Done
-
-> Use MySQL as you main datastore. you can check out Redis 
-
-Used MySQL for relational database, and used Redis for cacheing
-
-> Use Docker
-
-Done, I used Docker to containerize the application.
-
-> Use Rspec
-
-I used RSpec to implement automated tests for my code, ensuring its correctness and reliability by verifying the functionality of key components.
-
 ##Requirements
 
 install [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/install/).
@@ -115,6 +72,7 @@ install [Docker](https://www.docker.com/) and [Docker Compose](https://docs.dock
 ## Getting started
 
 ### For Docker
+
 To build and start 
 ```
 docker-compose up --build
